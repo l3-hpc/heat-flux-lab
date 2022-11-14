@@ -1,9 +1,5 @@
 #Alias Pandas as pd, for manipulating tables and timeseries
 import pandas as pd
-#Alias MatPlotLib at plt, for making plots/graphs/figures
-import matplotlib.pyplot as plt
-#Alias Numpy as'np', for the arrays
-import numpy as np
 
 # write function to calculate change in temperature that receives the inputs Qt, z, and days
 def readfile (fname):
@@ -22,7 +18,10 @@ def maketimestamp(df,timevars):
     
 #Check what time period is covered in the dataset.
 def checktimerange(Time):
-    return (Time.max() - Time.min())
+    mintime = Time.min().strftime('%b %d, %Y')
+    maxtime = Time.max().strftime('%b %d, %Y')
+    datelabel = "Data collected from " + mintime + " to " + maxtime
+    print(datelabel)
 
 #Calculate change in temperature given time, heat flux, depth, specific heat capacity, and density
 def tempchange (Time, Q, z, c, rho):
@@ -35,7 +34,9 @@ def tempchange (Time, Q, z, c, rho):
     return print(message)
 
 #Plot a single variable
-def single_plot (xvar, yvar, title, xlabel, ylabel, color):
+def single_timeplot (Time, yvar, title, ylabel, color):
+    #Alias MatPlotLib at plt, for making plots/graphs/figures
+    import matplotlib.pyplot as plt
     #Daily ticks in month-date format for year 2017
     from matplotlib.dates import DayLocator
     from matplotlib.dates import DateFormatter
@@ -47,9 +48,9 @@ def single_plot (xvar, yvar, title, xlabel, ylabel, color):
     fig1.suptitle(title, fontsize=18, y=1.05)
 
     #First plot, solar radiation
-    ax1.plot(xvar, yvar, color) #main plot
+    ax1.plot(Time, yvar, color) #main plot
     ax1.axes.get_xaxis().set_ticks([]) #remove dates
-    ax1.set_xlim([xvar.min(), xvar.max()]) #x-limits
+    ax1.set_xlim([Time.min(), Time.max()]) #x-limits
     ax1.set_ylim([yvar.min(),yvar.max()])   #y-limits
     ax1.legend([ylabel],framealpha=1, fontsize=12)
     ax1.set_ylabel(ylabel,fontsize=14)
@@ -58,30 +59,41 @@ def single_plot (xvar, yvar, title, xlabel, ylabel, color):
     ax1.yaxis.labelpad = 15
     plt.xticks(rotation = 45) 
     ax1.xaxis.labelpad = 20
-    
+    mintime = Time.min().strftime('%b %d, %Y')
+    maxtime = Time.max().strftime('%b %d, %Y')
+    datelabel = "Data collected from " + mintime + " to " + maxtime
+    ax1.set_xlabel(datelabel) 
     ax1.xaxis.set_major_formatter(date_form)
     
     plt.show()
     
 #Plot all variables in a dataframe
-def multi_plot (xvar, yvar,xlabel,ylabel):
-#, title, xlabel, ylabel, colors):
+def multi_plot (Time, yvar,ylabel):
+    #Alias MatPlotLib at plt, for making plots/graphs/figures
+    import matplotlib.pyplot as plt
     #Make a timeseries plot
     fig1, (ax1) = plt.subplots(1, figsize=(20, 3)) #form two rows and one column (2,1) of subplots
     #Choose which colors will be used automatically for plots
     #First plot, solar radiation
-    ax1.plot(xvar, yvar) #main plot
+    ax1.plot(Time, yvar) #main plot
     ax1.set_xlim([Time.min(), Time.max()]) #x-limits
-    ax1.set_xlabel(xlabel, fontsize=14)
     ax1.set_ylabel(ylabel, fontsize=14)
+    mintime = Time.min().strftime('%b %d, %Y')
+    maxtime = Time.max().strftime('%b %d, %Y')
+    datelabel = "Data collected from " + mintime + " to " + maxtime
+    ax1.set_xlabel(datelabel)
     plt.show()
     
 #Plot solar radiation, heat flux loss terms, and sea surface temperature
-def plotfluxtemp (Time, df, where, when):
-    
+def plotfluxtemp (Time, df):
+    #Alias MatPlotLib at plt, for making plots/graphs/figures
+    import matplotlib.pyplot as plt
+ 
     #Define Title String
-    titlestring = "Data was gathered near " + where + " during " + when +"."
-    
+    mintime = Time.min().strftime('%b %d, %Y')
+    maxtime = Time.max().strftime('%b %d, %Y')
+    datelabel = "Data collected from " + mintime + " to " + maxtime
+
     #Define SST and Qin
     sst = df['sst']
     Qin = df['Qin']
@@ -100,7 +112,7 @@ def plotfluxtemp (Time, df, where, when):
     plt.rc('axes', prop_cycle=(cycler('color', ['black', 'blue', 'grey'])))
 
     #Make a timeseries plot with heat gain and heat loss terms
-    fig1, (ax1, ax2, ax3) = plt.subplots(3,1, figsize=(18, 8)) #form two rows and one column (2,1) of subplots
+    fig1, (ax1, ax2, ax3) = plt.subplots(3,1, figsize=(20, 8)) #form three rows and one column (3,1) of subplots
     fig1.suptitle('\n Magnitude of Heat Flux Terms (W/m$^2$) and Sea Surface Temperature ($^{\circ}$C)', fontsize=18)
 
     #First plot, solar radiation
@@ -123,7 +135,7 @@ def plotfluxtemp (Time, df, where, when):
     ax2.set_ylim([heatloss['Qe'].min(),heatloss['Qe'].max()+50]) #y-limits
     ax2.xaxis.set_major_locator(dloc)
     ax2.axes.get_xaxis().set_ticks([]) #remove dates
-    plt.xlabel(titlestring, fontsize=16)
+    plt.xlabel(datelabel)
     ax2.xaxis.labelpad = 20
     ax2.legend(['Q$_b$  Back Radiation','Q$_h$  Sensible Heat Flux','Q$_e$  Latent Heat Flux'],framealpha=1, fontsize=12)
     ax2.set_xticklabels('')
@@ -155,7 +167,9 @@ def plotfluxtemp (Time, df, where, when):
     
 #Plot solar radiation, heat flux loss terms, and sea surface temperature
 def plotsummary (Time, df):
-        
+    #Alias MatPlotLib at plt, for making plots/graphs/figures
+    import matplotlib.pyplot as plt
+    
     #Define SST and Qin
     sst = df['sst']
     Qin = df['Qin']
@@ -174,10 +188,14 @@ def plotsummary (Time, df):
     plt.rc('axes', prop_cycle=(cycler('color', ['black', 'royalblue', 'grey'])))
 
     #Make a timeseries plot with heat gain and heat loss terms
-    #, figsize=(18, 8)
-    fig1, axes = plt.subplots(3,2,figsize=(30, 15)) #form three rows and two columns (3,2) of subplots
+    fig1, axs = plt.subplots(3,2,figsize=(30, 15)) #form three rows and two columns (3,2) of subplots
+
+    mintime = Time.min().strftime('%b %d, %Y')
+    maxtime = Time.max().strftime('%b %d, %Y')
+    datelabel = "\n \n Data collected from " + mintime + " to " + maxtime
+    fig1.suptitle(datelabel, fontsize=20)
  
-    ax1=axes[0,0]
+    ax1=axs[0,0]
     #First plot, solar radiation
     ax1.plot(Time, Qin,'darkred') #main plot
     ax1.axes.get_xaxis().set_ticks([]) #remove dates
@@ -191,7 +209,7 @@ def plotsummary (Time, df):
     ax1.grid(color='lightgrey', linestyle='--', linewidth=0.5) #gridlines
     
 
-    ax2=axes[1,0]
+    ax2=axs[1,0]
     #Plot all of the heat loss terms
     ax2.plot(Time, heatloss) #main plot
     ax2.grid(color='lightgrey', linestyle='--', linewidth=0.5)#gridlines
@@ -207,7 +225,7 @@ def plotsummary (Time, df):
     ax2.xaxis.set_major_locator(dloc)
     plt.subplots_adjust(hspace=0.01,wspace=0)
 
-    ax3=axes[2,0]
+    ax3=axs[2,0]
     #Third plot, Temperature
     ax3.plot(Time, sst,'darkgreen') #main plot
     ax3.axes.get_xaxis().set_ticks([]) #remove dates
@@ -222,9 +240,8 @@ def plotsummary (Time, df):
     ax3.xaxis.set_major_formatter(date_form)
     plt.xticks(rotation = 45) 
     ax3.tick_params(axis='x',labelrotation=45)
-    
-    
-    ax4=axes[0,1]
+ 
+    ax4=axs[0,1]
     #Fourth plot, Wind Speed
     ax4.plot(Time, df['Vm'],'saddlebrown') #main plot
     ax4.axes.get_xaxis().set_ticks([]) #remove dates
@@ -239,7 +256,7 @@ def plotsummary (Time, df):
     ax4.yaxis.set_label_position("right")
     ax4.yaxis.tick_right()
 
-    ax5=axes[1,1]
+    ax5=axs[1,1]
     #Fifth plot, Relative Humidity
     ax5.plot(Time, df['RH'],'darkblue') #main plot
     ax5.grid(color='lightgrey', linestyle='--', linewidth=0.5)#gridlines
@@ -257,7 +274,7 @@ def plotsummary (Time, df):
     ax5.yaxis.set_label_position("right")
     ax5.yaxis.tick_right()
 
-    ax6=axes[2,1]
+    ax6=axs[2,1]
     #Sixth plot, Difference in Air and Water temperature
     diffairtemp = df['Vm']-df['sst']
     ax6.plot(Time, diffairtemp,'indigo') #main plot
@@ -274,5 +291,10 @@ def plotsummary (Time, df):
     plt.xticks(rotation = 45) 
     ax6.yaxis.set_label_position("right")
     ax6.yaxis.tick_right()
-       
+    
+#    mintime = Time.min().strftime('%b %d, %Y')
+#    maxtime = Time.max().strftime('%b %d, %Y')
+#    datelabel = "Data collected from " + mintime + " to " + maxtime
+#    fig1.suptitle(datelabel, va='bottom', fontsize=14)
+
     plt.show()
