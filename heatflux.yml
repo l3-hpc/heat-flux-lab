@@ -1,0 +1,9 @@
+name: examples
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - matplotlib
+  - numpy
+  - pandas
+  - notebook
